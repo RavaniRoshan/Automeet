@@ -1,9 +1,28 @@
+import { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import ProblemSolution from './components/ProblemSolution';
+import HowItWorks from './components/HowItWorks';
+import Features from './components/Features';
+import Testimonials from './components/Testimonials';
+import Dashboard from './components/Dashboard';
+import Pricing from './components/Pricing';
+import FAQ from './components/FAQ';
+import CTA from './components/CTA';
+import Footer from './components/Footer';
 import ChatInterface from './components/ChatInterface';
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const [showChat, setShowChat] = useState(false);
+
+  const handleGetStarted = () => {
+    if (user) {
+      setShowChat(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -13,22 +32,27 @@ function AppContent() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Welcome to AI Chat
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Please sign in to start chatting with Gemini AI
-          </p>
-        </div>
-      </div>
-    );
+  if (showChat && user) {
+    return <ChatInterface onBackToHome={() => setShowChat(false)} />;
   }
 
-  return <ChatInterface />;
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <Header onAuthSuccess={handleGetStarted} />
+      <main>
+        <Hero onGetStarted={handleGetStarted} />
+        <ProblemSolution />
+        <HowItWorks />
+        <Features />
+        <Testimonials />
+        <Dashboard />
+        <Pricing />
+        <FAQ />
+        <CTA onGetStarted={handleGetStarted} />
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
 function App() {

@@ -7,10 +7,14 @@ import ChatInput from './ChatInput';
 import TypingIndicator from './TypingIndicator';
 import ConversationSidebar from './ConversationSidebar';
 import type { Conversation, Message } from '../types/database.types';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Home, LogOut } from 'lucide-react';
 
-export default function ChatInterface() {
-  const { user } = useAuth();
+interface ChatInterfaceProps {
+  onBackToHome?: () => void;
+}
+
+export default function ChatInterface({ onBackToHome }: ChatInterfaceProps) {
+  const { user, signOut } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -196,6 +200,34 @@ export default function ChatInterface() {
       />
 
       <div className="flex-1 flex flex-col">
+        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </div>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Chat Assistant</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {onBackToHome && (
+              <button
+                onClick={onBackToHome}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <Home className="w-4 h-4" />
+                <span>Home</span>
+              </button>
+            )}
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
         <div className="flex-1 overflow-y-auto p-6">
           {error && (
             <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 text-red-700 dark:text-red-400">

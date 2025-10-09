@@ -1,0 +1,64 @@
+{
+  "name": "automeet-backend",
+  "version": "1.0.0",
+  "description": "AI-powered email outreach and meeting scheduler backend",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "jest",
+    "db:migrate": "node src/database/migrate.js",
+    "db:seed": "node src/database/seed.js",
+    "scheduler:start": "node src/schedulers/index.js",
+    "edge:deploy": "node scripts/deploy-edge-functions.js"
+  },
+  "keywords": [
+    "email-automation",
+    "meeting-scheduler",
+    "google-calendar",
+    "gmail-api",
+    "ai-powered"
+  ],
+  "author": "AutoMeet Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/local-auth": "^3.0.0",
+    "@google/generative-ai": "^0.5.0",
+    "@googleapis/calendar": "^9.3.3",
+    "@googleapis/gmail": "^8.0.0",
+    "@googleapis/people": "^3.0.0",
+    "@supabase/supabase-js": "^2.39.3",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "date-fns": "^3.0.6",
+    "date-fns-tz": "^2.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "googleapis": "^129.0.0",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.8",
+    "pg": "^8.11.3",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "redis": "^4.6.12",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -316,11 +316,10 @@ class GmailService {
       // Create the Gmail API instance
       const gmail = google.gmail({ version: 'v1', auth: this.googleAuth.getOAuth2Client() });
 
-      // Search for unread emails from prospects
-      // This would typically look for emails from people we've emailed
+      // Search for unread emails to the user (potential replies from prospects)
       const response = await gmail.users.messages.list({
         userId: 'me',
-        q: 'is:unread from:me', // Find unread emails that we sent (this is just an example query)
+        q: 'is:unread to:me', // Find unread emails sent to the user
         maxResults: 50
       });
 
@@ -338,6 +337,43 @@ class GmailService {
       return emailDetails;
     } catch (error) {
       console.error('Error checking for replies:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Modifies labels on a Gmail message (e.g., to mark as read/unread)
+   */
+  async modifyMessageLabels(userId: string, messageId: string, removeLabels: string[] = [], addLabels: string[] = []): Promise<void> {
+    try {
+      // Ensure the user's credentials are set
+      await this.googleAuth.setCredentials(userId);
+
+      // Create the Gmail API instance
+      const gmail = google.gmail({ version: 'v1', auth: this.googleAuth.getOAuth2Client() });
+
+      // Prepare the modify request
+      const modifyRequest = {
+        userId: 'me',
+        id: messageId,
+        requestBody: {
+          removeLabelIds: removeLabels,
+          addLabelIds: addLabels
+        }
+      };
+
+      // Modify the message labels
+      await gmail.users.messages.modify(modifyRequest);
+
+      console.log(`Labels modified for message ${messageId}`);
+      if (removeLabels.length > 0) {
+        console.log(`  Removed labels: ${removeLabels.join(', ')}`);
+      }
+      if (addLabels.length > 0) {
+        console.log(`  Added labels: ${addLabels.join(', ')}`);
+      }
+    } catch (error) {
+      console.error(`Error modifying labels for message ${messageId}:`, error);
       throw error;
     }
   }

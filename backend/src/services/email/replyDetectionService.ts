@@ -31,11 +31,11 @@ class ReplyDetectionService {
       console.log(`Fetching new replies for user ${userId}...`);
 
       // Get messages from the user's Gmail inbox
-      // Look specifically for replies from prospects (emails that contain our sent emails plus prospect responses)
+      // Look specifically for replies from prospects (emails sent to the user that are from prospects)
       const messages = await this.gmailService.getRecentEmails(
         userId, 
         50, // Get last 50 messages
-        'from:me label:unread' // Query to find unread messages that might be replies
+        'to:me label:unread' // Query to find unread messages sent to the user (potential replies)
       );
 
       if (!messages || messages.length === 0) {
@@ -165,13 +165,8 @@ class ReplyDetectionService {
       await this.updateProspectStatus(userId, fromEmail, 'replied');
 
       // Mark the email as read in Gmail to avoid processing again
-      await this.gmailService.createDraft(userId, {
-        to: fromEmail,
-        subject: subject,
-        html: body,
-        threadId: threadId, // This will put it in the same thread
-        messageId: message.id
-      });
+      // Remove the 'UNREAD' label from the processed message
+      await this.gmailService.modifyMessageLabels(userId, message.id, ['UNREAD'], []);
 
       console.log(`Processed reply from ${fromEmail}: ${subject}`);
       return reply;
@@ -491,7 +486,10 @@ class ReplyDetectionService {
         const fromHeader = message.payload.headers.find((header: any) => header.name.toLowerCase() === 'from');
         const fromEmail = this.extractEmailFromHeader(fromHeader?.value);
 
-        if (fromEmail && !fromEmail.includes('user-email-placeholder')) { // Replace with actual check
+        // Get user's email to compare against
+        const userEmail = await this.getUserEmail(userId);
+        
+        if (fromEmail && userEmail && !fromEmail.includes(userEmail)) { // Check if the email is not from the user
           const reply = await this.processReply(userId, message);
           if (reply) {
             newReplies.push(reply);
@@ -517,6 +515,29 @@ class ReplyDetectionService {
       console.log(`Marking message ${messageId} as processed`);
     } catch (error) {
       console.error(`Error marking message ${messageId} as processed:`, error);
+    }
+  }
+
+  /**
+   * Gets the user's email address
+   */
+  private async getUserEmail(userId: string): Promise<string | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('users')
+        .select('email')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error(`Error getting user email for user ${userId}:`, error);
+        return null;
+      }
+
+      return data?.email || null;
+    } catch (error) {
+      console.error(`Error in getUserEmail for ${userId}:`, error);
+      return null;
     }
   }
 }
